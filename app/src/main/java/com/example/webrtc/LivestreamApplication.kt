@@ -13,7 +13,7 @@ class LivestreamApplication: Application() {
     private fun initializeSDK() {
         val userId = "c69eyawhnekh"
         val userName = "Broadcaster"
-        val userToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJAc3RyZWFtLWlvL2Rhc2hib2FyZCIsImlhdCI6MTczNjczODIzOSwiZXhwIjoxNzM2ODI0NjM5LCJ1c2VyX2lkIjoiIWFub24iLCJyb2xlIjoidmlld2VyIiwiY2FsbF9jaWRzIjpbImxpdmVzdHJlYW06bGl2ZXN0cmVhbV81OGQxZGVhNi0xYjdjLTRjNTUtOTI3OC1kODJkOTJlNDUzZDciXX0.Rt3oMfkKXjwAcXxD3imWi3IFFZrGzaGrecwcsEvXIVE"
+        val userToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJAc3RyZWFtLWlvL2Rhc2hib2FyZCIsImlhdCI6MTczNjc0NDg2MiwiZXhwIjoxNzM2ODMxMjYyLCJ1c2VyX2lkIjoiIWFub24iLCJyb2xlIjoidmlld2VyIiwiY2FsbF9jaWRzIjpbImxpdmVzdHJlYW06bGl2ZXN0cmVhbV82ZDk5ZGY4My0yZjc0LTQ5NGEtYmRlOC0zYjU0ZTMxNjZmYzAiXX0.VE6_wFzOuIuyeS4FwMrs6rqPmdi6Ms68nWbku46P5g4"
 
 
         // Step 1 - Create a user.
