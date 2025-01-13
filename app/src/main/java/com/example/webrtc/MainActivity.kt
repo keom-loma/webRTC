@@ -20,19 +20,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val client = StreamVideo.instance()
-        val call = client.call("livestream", "livestream_311d1110-0b28-43d7-95a9-f292a116a100")
+        val call = client.call("livestream", "livestream_58d1dea6-1b7c-4c55-9278-d82d92e453d7")
         setContent {
             WebRTCTheme {
                 VideoTheme {
                     LiveAudience(call = call)
                 }
-                /*Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    WebRTCUi(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    )
-                }*/
             }
         }
     }
