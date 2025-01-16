@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.webrtc"
-        minSdk = 34
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -18,15 +18,47 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("releaseConfig") {
+            storeFile = file( "./playCreds/keystore.jks")
+            storePassword = "kk1234"
+            keyAlias = "my_key_alias"
+            keyPassword = "kk1234"
+        }
+
+        create("debugConfig") {
+            storeFile = file( "./playCreds/keystore.jks")
+            storePassword = "kk1234"
+            keyAlias = "my_key_alias"
+            keyPassword = "kk1234"
+        }
+    }
+
     buildTypes {
-        release {
+        getByName("debug") {
             isMinifyEnabled = false
+            isDebuggable = true
+            isShrinkResources = false
+            isJniDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debugConfig")
+        }
+        getByName("release") {
+            isMinifyEnabled = true
+            isDebuggable = true
+            isShrinkResources = true
+            isJniDebuggable = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("releaseConfig")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -51,6 +83,8 @@ dependencies {
     implementation(libs.androidx.material3)
    // implementation (libs.stream.chat.android.compose) // for this one for make ui component
     implementation(libs.stream.video.android.ui.compose)
+    //permission
+    implementation(libs.accompanist.permissions)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

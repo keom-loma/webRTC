@@ -1,6 +1,7 @@
 package com.example.webrtc
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,13 +22,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.webrtc.ui.theme.WebRTCTheme
+import com.example.webrtc.util.Constant
+import com.example.webrtc.util.Constant.openAppSetting
 import com.example.webrtc.view.LivestreamBackStage
+import com.example.webrtc.view.PermissionAwareComponent
+import com.example.webrtc.view.checkPermissionsDenied
 import com.example.webrtc.view.livestreamRenderer
 import com.example.webrtc.viewModel.LiveStreamViewModel
 import io.getstream.video.android.compose.permission.LaunchCallPermissions
@@ -43,12 +52,55 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val client = StreamVideo.instance()
-        val liveStreamViewModel: LiveStreamViewModel by viewModels()
-        val call = client.call("livestream", "livestream_319584b0-c1be-4c75-809d-03d82da2e5e7")
         setContent {
             WebRTCTheme {
-                VideoTheme {
-                    LiveAudience(call = call, liveStreamViewModel = liveStreamViewModel)
+                val context = LocalContext.current
+                val scope = rememberCoroutineScope()
+                var isDenied by remember { mutableStateOf(true) }
+                PermissionAwareComponent(
+                    modifier = Modifier.fillMaxSize(),
+                    permissions = Constant.PERMISSIONS,
+                    shouldShowSetting = {
+                        this.openAppSetting()
+                    },
+                    onPermissionGranted = {
+                        isDenied = false
+                    }
+                ) { event ->
+                    event.value = true
+                    LaunchedEffect (key1 = Unit) {
+                        if(context.checkPermissionsDenied(Constant.PERMISSIONS)) {
+                            isDenied = true
+                        } else {
+                            isDenied = false
+                        }
+                    }
+                    Log.e("TAG","$isDenied")
+                    if(isDenied.not()) {
+                        val liveStreamViewModel: LiveStreamViewModel by viewModels()
+                        val call = client.call("livestream", "livestream_30d0b1dc-bed5-4c0f-9ac1-360e069b6783")
+                        VideoTheme {
+                            LiveAudience(call = call, liveStreamViewModel = liveStreamViewModel)
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator()
+                                Text(
+                                    text = "Need Permission!",
+                                    modifier = Modifier.padding(
+                                        top = 10.dp
+                                    ),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -118,13 +170,13 @@ fun LiveAudience(call: Call, liveStreamViewModel: LiveStreamViewModel) {
         }
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
+
     LaunchCallPermissions(call = call, onAllPermissionsGranted = {
         call.join(create = true)
     })
 
     if (isCheckingVideo?.track != null) {
-        Column(
-        ) {
+        Column(modifier = Modifier.fillMaxSize().background(color = Color.Gray.copy(0.5f))) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,28 +197,6 @@ fun LiveAudience(call: Call, liveStreamViewModel: LiveStreamViewModel) {
                             )
                         },
                     )
-                }
-            }
-            LazyColumn(
-                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
-            ) {
-                items(10) { index ->
-                    Box(
-                        modifier = Modifier.background(
-                            color = if (index % 2 == 0) Color.White else Color.Gray.copy(
-                                alpha = 0.2f
-                            )
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .height(30.dp)
-                        ) {
-
-                        }
-                    }
                 }
             }
         }
