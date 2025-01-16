@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace = "com.example.webrtc"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.webrtc"
-        minSdk = 24
+        minSdk = 34
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -49,6 +49,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+   // implementation (libs.stream.chat.android.compose) // for this one for make ui component
+    implementation(libs.stream.video.android.ui.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
