@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.webrtc.ui.theme.WebRTCTheme
@@ -30,14 +29,12 @@ import com.example.webrtc.ui.theme.backgroundColor
 import com.example.webrtc.util.Constant
 import com.example.webrtc.util.Constant.openAppSetting
 import com.example.webrtc.view.LivestreamBackStage
-import com.example.webrtc.view.LivestreamPlayerOverlay2
 import com.example.webrtc.view.PermissionAwareComponent
 import com.example.webrtc.view.livestreamRenderer
 import com.example.webrtc.viewModel.LiveStreamViewModel
 import io.getstream.video.android.compose.permission.LaunchCallPermissions
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.livestream.LivestreamPlayer
-import io.getstream.video.android.compose.ui.components.livestream.LivestreamPlayerOverlay
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.RealtimeConnection
 import io.getstream.video.android.core.StreamVideo
@@ -50,7 +47,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val client = StreamVideo.instance()
         val liveStreamViewModel: LiveStreamViewModel by viewModels()
-        val call = client.call("livestream", "livestream_30d0b1dc-bed5-4c0f-9ac1-360e069b6783")
+        val call = client.call("livestream", "livestream_0d7c0d31-8525-4e36-ab04-b9157ca1454b")
         setContent {
             WebRTCTheme {
                 val context = LocalContext.current
