@@ -30,12 +30,14 @@ import com.example.webrtc.ui.theme.backgroundColor
 import com.example.webrtc.util.Constant
 import com.example.webrtc.util.Constant.openAppSetting
 import com.example.webrtc.view.LivestreamBackStage
+import com.example.webrtc.view.LivestreamPlayerOverlay2
 import com.example.webrtc.view.PermissionAwareComponent
 import com.example.webrtc.view.livestreamRenderer
 import com.example.webrtc.viewModel.LiveStreamViewModel
 import io.getstream.video.android.compose.permission.LaunchCallPermissions
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.livestream.LivestreamPlayer
+import io.getstream.video.android.compose.ui.components.livestream.LivestreamPlayerOverlay
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.RealtimeConnection
 import io.getstream.video.android.core.StreamVideo
@@ -153,10 +155,10 @@ fun LiveAudience(call: Call, liveStreamViewModel: LiveStreamViewModel) {
                 Column {
                     LivestreamPlayer(
                         call = call,
-                        enablePausing = true,
-                        onPausedPlayer = {
+                        //enablePausing = true,
+                        /*onPausedPlayer = {
                             Toast.makeText(context, "Paused", Toast.LENGTH_SHORT).show()
-                        },
+                        },*/
                         backstageContent = { LivestreamBackStage() },
                         rendererContent = {
                             livestreamRenderer(

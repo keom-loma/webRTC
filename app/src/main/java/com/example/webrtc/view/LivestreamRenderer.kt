@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.getstream.video.android.compose.ui.components.video.VideoRenderer
+import io.getstream.video.android.compose.ui.components.video.VideoScalingType.SCALE_ASPECT_FIT
 import io.getstream.video.android.core.Call
 import io.getstream.webrtc.android.ui.VideoTextureViewRenderer
 
@@ -41,7 +42,7 @@ internal fun livestreamRenderer(
             VideoRenderer(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clickable(enabled = enablePausing) {
+                   /* .clickable(enabled = enablePausing) {
                         if (onPausedPlayer != null) {
                             isPaused = !isPaused
                             livestream?.track?.video?.setEnabled(!isPaused)
@@ -53,12 +54,14 @@ internal fun livestreamRenderer(
                                 videoTextureView?.resumeVideo()
                             }
                         }
-                    },
+                    }*/
+                ,
                 call = call,
                 video = livestream,
                 onRendered = { renderer ->
                     videoTextureView = renderer
                 },
+                videoScalingType = SCALE_ASPECT_FIT
             )
         } else {
             Box(
