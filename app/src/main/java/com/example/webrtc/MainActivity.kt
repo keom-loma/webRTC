@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.webrtc.ui.theme.WebRTCTheme
+import com.example.webrtc.ui.theme.backgroundColor
 import com.example.webrtc.util.Constant
 import com.example.webrtc.util.Constant.openAppSetting
 import com.example.webrtc.view.LivestreamBackStage
@@ -143,7 +144,7 @@ fun LiveAudience(call: Call, liveStreamViewModel: LiveStreamViewModel) {
     })
 
     if (isCheckingVideo?.track != null) {
-        Column(modifier = Modifier.fillMaxSize().background(color = Color.Gray.copy(0.5f))) {
+        Column(modifier = Modifier.fillMaxSize().background(color = backgroundColor)) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
