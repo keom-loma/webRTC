@@ -24,8 +24,6 @@ object Constant {
         }
     }
 
-    val PERMISSIONS_2 = listOf(Manifest.permission.POST_NOTIFICATIONS)
-
     fun Context.openAppSetting() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             .apply {
