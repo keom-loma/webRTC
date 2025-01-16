@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         val client = StreamVideo.instance()
         val liveStreamViewModel: LiveStreamViewModel by viewModels()
-        val call = client.call("livestream", "livestream_0d7c0d31-8525-4e36-ab04-b9157ca1454b")
+        val call = client.call("livestream", "livestream_91c505c4-15f1-4488-8f3b-b0697df42d22")
         setContent {
             WebRTCTheme {
                 val scope = rememberCoroutineScope()
