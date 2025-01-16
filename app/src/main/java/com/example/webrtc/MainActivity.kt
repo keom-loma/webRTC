@@ -1,7 +1,6 @@
 package com.example.webrtc
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,40 +9,28 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.webrtc.ui.theme.WebRTCTheme
-import com.example.webrtc.util.Constant
-import com.example.webrtc.util.Constant.openAppSetting
+import com.example.webrtc.util.AppNavigation
 import com.example.webrtc.view.LivestreamBackStage
-import com.example.webrtc.view.LivestreamPlayerOverlay2
-import com.example.webrtc.view.PermissionAwareComponent
-import com.example.webrtc.view.checkPermissionsDenied
 import com.example.webrtc.view.livestreamRenderer
 import com.example.webrtc.viewModel.LiveStreamViewModel
 import io.getstream.video.android.compose.permission.LaunchCallPermissions
-import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.livestream.LivestreamPlayer
-import io.getstream.video.android.compose.ui.components.livestream.LivestreamPlayerOverlay
 import io.getstream.video.android.core.Call
 import io.getstream.video.android.core.RealtimeConnection
 import io.getstream.video.android.core.StreamVideo
@@ -55,56 +42,59 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val client = StreamVideo.instance()
         setContent {
+            val liveStreamViewModel: LiveStreamViewModel by viewModels()
             WebRTCTheme {
-                val context = LocalContext.current
-                val scope = rememberCoroutineScope()
-                var isDenied by remember { mutableStateOf(true) }
-                PermissionAwareComponent(
-                    modifier = Modifier.fillMaxSize(),
-                    permissions = Constant.PERMISSIONS,
-                    shouldShowSetting = {
-                        this.openAppSetting()
-                    },
-                    onPermissionGranted = {
-                        isDenied = false
-                    }
-                ) { event ->
-                    event.value = true
-                    LaunchedEffect (key1 = Unit) {
-                        if(context.checkPermissionsDenied(Constant.PERMISSIONS)) {
-                            isDenied = true
-                        } else {
-                            isDenied = false
-                        }
-                    }
-                    Log.e("TAG","$isDenied")
-                    if(isDenied.not()) {
-                        val liveStreamViewModel: LiveStreamViewModel by viewModels()
-                        val call = client.call("livestream", "livestream_30d0b1dc-bed5-4c0f-9ac1-360e069b6783")
-                        VideoTheme {
-                            LiveAudience(call = call, liveStreamViewModel = liveStreamViewModel)
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator()
-                                Text(
-                                    text = "Need Permission!",
-                                    modifier = Modifier.padding(
-                                        top = 10.dp
-                                    ),
-                                )
-                            }
-                        }
-                    }
-                }
+                AppNavigation(liveStreamViewModel = liveStreamViewModel)
             }
+            /*  WebRTCTheme {
+                  val context = LocalContext.current
+                  var isDenied by remember { mutableStateOf(true) }
+                  PermissionAwareComponent(
+                      modifier = Modifier.fillMaxSize(),
+                      permissions = Constant.PERMISSIONS,
+                      shouldShowSetting = {
+                          this.openAppSetting()
+                      },
+                      onPermissionGranted = {
+                          isDenied = false
+                      }
+                  ) { event ->
+                      event.value = true
+                      LaunchedEffect (key1 = Unit) {
+                          if(context.checkPermissionsDenied(Constant.PERMISSIONS)) {
+                              isDenied = true
+                          } else {
+                              isDenied = false
+                          }
+                      }
+                      Log.e("TAG","$isDenied")
+                      if(isDenied.not()) {
+                          val liveStreamViewModel: LiveStreamViewModel by viewModels()
+                          val call = client.call("livestream", "livestream_25b8faf9-0a17-4f7a-ba88-bc70d263d16a")
+                          VideoTheme {
+                              LiveAudience(call = call, liveStreamViewModel = liveStreamViewModel)
+                          }
+                      } else {
+                          Box(
+                              modifier = Modifier.fillMaxSize(),
+                              contentAlignment = Alignment.Center
+                          ) {
+                              Column(
+                                  modifier = Modifier.padding(16.dp),
+                                  horizontalAlignment = Alignment.CenterHorizontally
+                              ) {
+                                  CircularProgressIndicator()
+                                  Text(
+                                      text = "Need Permission!",
+                                      modifier = Modifier.padding(
+                                          top = 10.dp
+                                      ),
+                                  )
+                              }
+                          }
+                      }
+                  }
+              }*/
         }
     }
 }
@@ -178,7 +168,9 @@ fun LiveAudience(call: Call, liveStreamViewModel: LiveStreamViewModel) {
     })
 
     if (isCheckingVideo?.track != null) {
-        Column(modifier = Modifier.fillMaxSize().background(color = Color.Gray.copy(0.5f))) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Gray.copy(0.5f))) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

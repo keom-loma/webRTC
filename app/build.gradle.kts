@@ -83,8 +83,11 @@ dependencies {
     implementation(libs.androidx.material3)
    // implementation (libs.stream.chat.android.compose) // for this one for make ui component
     implementation(libs.stream.video.android.ui.compose)
+    implementation (libs.androidx.navigation.compose.v273)
+
     //permission
     implementation(libs.accompanist.permissions)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
