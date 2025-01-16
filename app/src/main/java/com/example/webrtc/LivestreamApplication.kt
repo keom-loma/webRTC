@@ -1,14 +1,10 @@
 package com.example.webrtc
 
 import android.app.Application
-import androidx.compose.runtime.clearCompositionErrors
-import io.getstream.log.Priority
-import io.getstream.video.android.core.GEO
 import io.getstream.video.android.core.StreamVideoBuilder
-import io.getstream.video.android.core.logging.LoggingLevel
 import io.getstream.video.android.model.User
 
-class LivestreamApplication: Application() {
+class LivestreamApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initializeSDK()
@@ -17,13 +13,14 @@ class LivestreamApplication: Application() {
     private fun initializeSDK() {
         val userId = "c69eyawhnekh"
         val userName = "Broadcaster"
-        val userToken ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJAc3RyZWFtLWlvL2Rhc2hib2FyZCIsImlhdCI6MTczNjgzMjA5MSwiZXhwIjoxNzM2OTE4NDkxLCJ1c2VyX2lkIjoiIWFub24iLCJyb2xlIjoidmlld2VyIiwiY2FsbF9jaWRzIjpbImxpdmVzdHJlYW06bGl2ZXN0cmVhbV8wYzE4NDIxOS1jOThkLTRjMmEtYWQ4MC1hNzkwZDM1OTBjMDMiXX0.yLdVGncKELss3ybkNVbMzN_PGbAHWOahnvA9x5xlQHE"
+        val userToken =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJAc3RyZWFtLWlvL2Rhc2hib2FyZCIsImlhdCI6MTczNzAwMDk5NiwiZXhwIjoxNzM3MDg3Mzk2LCJ1c2VyX2lkIjoiIWFub24iLCJyb2xlIjoidmlld2VyIiwiY2FsbF9jaWRzIjpbImxpdmVzdHJlYW06bGl2ZXN0cmVhbV8zMTk1ODRiMC1jMWJlLTRjNzUtODA5ZC0wM2Q4MmRhMmU1ZTciXX0.p8OqKlRYUvkhgAMru30282U43uzhNdIUSQhuBK1zn-g"
 
 
         // Step 1 - Create a user.
         val user = User(
-            id = userId, // predefined string
-            name = userName, // Name and image are used in the UI
+            id = userId,
+            name = userName,
             role = "admin",
         )
 
@@ -32,11 +29,9 @@ class LivestreamApplication: Application() {
             context = this,
             user = User.anonymous(),
             apiKey = userId,
-            token =  userToken,
-            //geo = GEO.GlobalEdgeNetwork,
-           // loggingLevel = LoggingLevel(priority = Priority.VERBOSE)
+            token = userToken,
 
-        ).build()
+            ).build()
         println("Information of client: ${client.state.connection}")
     }
 }

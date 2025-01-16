@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.webrtc.R
 import io.getstream.video.android.compose.theme.VideoTheme
 import io.getstream.video.android.compose.ui.components.call.controls.actions.ToggleSpeakerphoneAction
 import io.getstream.video.android.core.Call
@@ -38,10 +39,13 @@ import io.getstream.video.android.core.Call
  */
 
 @Composable
-internal fun BoxScope.LivestreamPlayerOverlay(call:Call){
+internal fun BoxScope.LivestreamPlayerOverlay2(call:Call){
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .background(
+                color = Color.Yellow
+            )
             .align(Alignment.BottomCenter)
             .padding(6.dp),
     ) {
@@ -108,7 +112,7 @@ private fun LiveBadge(call: Call){
                 )
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             text = stringResource(
-                id = io.getstream.video.android.ui.common.R.string.stream_video_live,
+                id = R.string.app_name,
             ),
             color = Color.White,
         )
@@ -118,10 +122,10 @@ private fun LiveBadge(call: Call){
         Image(
             modifier = Modifier.size(22.dp),
             painter = painterResource(
-                id = io.getstream.video.android.ui.common.R.drawable.stream_video_ic_live,
+                id = R.drawable.ic_launcher_background,
             ),
             contentDescription = stringResource(
-                id = io.getstream.video.android.ui.common.R.string.stream_video_live,
+                id = R.string.app_name,
             ),
         )
 

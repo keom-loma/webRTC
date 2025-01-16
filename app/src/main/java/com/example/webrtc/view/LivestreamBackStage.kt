@@ -29,6 +29,5 @@ internal fun BoxScope.LivestreamBackStage() {
         id =  R.string.livestream_backstage,
     ),
     fontSize = 14.sp,
-    //color = VideoTheme.colors.brandPrimary,
 )
 }

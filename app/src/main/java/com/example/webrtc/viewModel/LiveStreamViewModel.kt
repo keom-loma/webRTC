@@ -3,23 +3,29 @@ package com.example.webrtc.viewModel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.net.wifi.WifiManager
-import android.telephony.CellInfoLte
-import android.telephony.TelephonyManager
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.webrtc.DataChannel
+import org.webrtc.IceCandidate
+import org.webrtc.MediaConstraints
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
+import org.webrtc.PeerConnection.IceConnectionState
+import org.webrtc.PeerConnection.IceGatheringState
+import org.webrtc.PeerConnection.IceServer
+import org.webrtc.PeerConnection.PeerConnectionState
+import org.webrtc.PeerConnection.SignalingState
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.PeerConnectionFactory.InitializationOptions
-import org.webrtc.DefaultVideoDecoderFactory
-import org.webrtc.DefaultVideoEncoderFactory
-import org.webrtc.EglBase
-import org.webrtc.IceCandidate
-import org.webrtc.PeerConnection.PeerConnectionState
+import org.webrtc.RTCStatsCollectorCallback
+import org.webrtc.RTCStatsReport
+import org.webrtc.SdpObserver
+import org.webrtc.SessionDescription
+import org.webrtc.VideoTrack
 
 /**
  * @Author: Jupyter.
@@ -38,111 +44,167 @@ class LiveStreamViewModel(
     private val _connectionState = MutableStateFlow(PeerConnectionState.NEW)
     val connectionState: StateFlow<PeerConnectionState> = _connectionState
 
+
+    private val _latencyState = MutableStateFlow(0.0)
+    val latencyState: StateFlow<Double> get() = _latencyState
+
     private lateinit var peerConnectionFactory: PeerConnectionFactory
     private lateinit var peerConnection: PeerConnection
+    private lateinit var vvideoTraTrack: VideoTrack
 
     init {
-        initializePeerConnectionFactory()
+        initPeerConnectionFactory()
+        startStateCollection1()
+        startStatusCollection()
     }
 
-    private fun initializePeerConnectionFactory() {
-            val options = InitializationOptions.builder(context)
-                .setFieldTrials("WebRTC-H264HighProfile/Enabled/")
+    private fun initPeerConnectionFactory() {
+        PeerConnectionFactory.initialize(
+            InitializationOptions.builder(context)
+                .setEnableInternalTracer(true)
                 .createInitializationOptions()
+        )
+        val factory = PeerConnectionFactory.builder().createPeerConnectionFactory()
 
-            PeerConnectionFactory.initialize(options)
-            val eglBase = EglBase.create()
-            peerConnectionFactory = PeerConnectionFactory.builder()
-                .setVideoDecoderFactory(DefaultVideoDecoderFactory(eglBase.eglBaseContext))
-                .setVideoEncoderFactory(
-                    DefaultVideoEncoderFactory(
-                        eglBase.eglBaseContext,
-                        true,
-                        true
-                    )
-                )
-                .createPeerConnectionFactory()
-            createPeerConnection()
-
-
-    }
-
-    private fun createPeerConnection() {
-        val rtcConfig = PeerConnection.RTCConfiguration(emptyList()).apply {
-            iceTransportsType = PeerConnection.IceTransportsType.ALL
-            sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
+        // List of ICE servers (use actual server details in production)
+        val iceServers = listOf(
+            IceServer.builder("stun:stun.l.google.com:19302")
+                .createIceServer() // Example STUN server
+        ).apply {
+            PeerConnection.SdpSemantics.UNIFIED_PLAN
         }
-        peerConnection = peerConnectionFactory.createPeerConnection(rtcConfig, object : PeerConnection.Observer {
-            override fun onIceConnectionChange(state: PeerConnection.IceConnectionState?) {
-                println("Processing of onIceConnectionChange: $state")
+        peerConnection = factory.createPeerConnection(iceServers, object : PeerConnection.Observer {
+            override fun onSignalingChange(p0: SignalingState?) {
+
+            }
+
+            override fun onIceConnectionChange(state: IceConnectionState?) {
                 state?.let {
-                   _connectionState.value = when(it){
-                       PeerConnection.IceConnectionState.CONNECTED -> PeerConnectionState.CONNECTED
-                       PeerConnection.IceConnectionState.DISCONNECTED -> PeerConnectionState.DISCONNECTED
-                       PeerConnection.IceConnectionState.FAILED -> PeerConnectionState.FAILED
-                       PeerConnection.IceConnectionState.NEW -> PeerConnectionState.NEW
-                       PeerConnection.IceConnectionState.CHECKING -> PeerConnectionState.CONNECTING
-                       PeerConnection.IceConnectionState.COMPLETED -> PeerConnectionState.CONNECTED
-                       PeerConnection.IceConnectionState.CLOSED -> PeerConnectionState.CLOSED
-                   }
+                    _connectionState.value = when (it) {
+                        IceConnectionState.CONNECTED -> PeerConnectionState.CONNECTED
+                        IceConnectionState.DISCONNECTED -> PeerConnectionState.DISCONNECTED
+                        IceConnectionState.FAILED -> PeerConnectionState.FAILED
+                        IceConnectionState.NEW -> PeerConnectionState.NEW
+                        IceConnectionState.CHECKING -> PeerConnectionState.CONNECTING
+                        IceConnectionState.COMPLETED -> PeerConnectionState.CONNECTED
+                        IceConnectionState.CLOSED -> PeerConnectionState.CLOSED
+                    }
                 }
             }
 
-            override fun onSignalingChange(state: PeerConnection.SignalingState?) {
-                println("Information of state ordinal : ${state?.ordinal}")
-                println("Information of state name: ${state?.name}")
-                println("Information of state: $state")
+            override fun onIceConnectionReceivingChange(p0: Boolean) {
+                println("Information of onIceConnectionReceivingChange: $p0")
             }
-            override fun onIceConnectionReceivingChange(receiving: Boolean) {
-                println("Information of receiving: $receiving")
-            }
-            override fun onIceGatheringChange(state: PeerConnection.IceGatheringState?) {
 
+            override fun onIceGatheringChange(p0: IceGatheringState?) {
+                println("Information of onIceGatheringChange: $p0")
             }
-            override fun onIceCandidate(candidate: IceCandidate?) {}
-            override fun onIceCandidatesRemoved(candidates: Array<out IceCandidate>?) {}
-            override fun onAddStream(mediaStream: MediaStream?) {
 
+            override fun onIceCandidate(p0: IceCandidate?) {
+                println("Information of onIceCandidate: $p0")
             }
-            override fun onRemoveStream(mediaStream: MediaStream?) {}
-            override fun onDataChannel(dataChannel: DataChannel?) {}
-            override fun onRenegotiationNeeded() {}
-        }) ?: throw IllegalStateException("Failed to create PeerConnection")
+
+            override fun onIceCandidatesRemoved(p0: Array<out IceCandidate>?) {
+                println("Information of onIceCandidatesRemoved: $p0")
+            }
+
+            override fun onAddStream(p0: MediaStream?) {
+                println("Information of onAddStream: $p0")
+            }
+
+            override fun onRemoveStream(p0: MediaStream?) {
+                println("Information of onRemoveStream: $p0")
+            }
+
+            override fun onDataChannel(p0: DataChannel?) {
+                println("Information of onDataChannel: $p0")
+            }
+
+            override fun onRenegotiationNeeded() {
+                println("Information of onRenegotiationNeeded:")
+            }
+
+        })!!
+
+        createOffer()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getWifiSignalQuality(context: Context): String {
-        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val rssi = wifiManager.connectionInfo.rssi
+    private fun createOffer() {
+        val constraints = MediaConstraints() // You can define any specific constraints here
+        peerConnection.createOffer(object : SdpObserver {
+            override fun onCreateSuccess(desc: SessionDescription?) {
+                println("Offer created successfully: ${desc?.type}")
+                val resPeerConnection = peerConnection.setLocalDescription(this, desc)
+            }
 
-        return when {
-            rssi > -50 -> "Excellent" // Strong signal
-            rssi > -70 -> "Good"      // Moderate signal
-            rssi > -80 -> "Fair"      // Weak signal
-            else -> "Poor"            // Very weak signal
+            override fun onSetSuccess() {
+                println("Local description set successfully")
+
+            }
+
+            override fun onCreateFailure(error: String?) {
+                println("Offer creation failed: $error")
+            }
+
+            override fun onSetFailure(error: String?) {
+                println("Set description failed: $error")
+            }
+        }, constraints)
+    }
+
+    private fun startStateCollection1() {
+        viewModelScope.launch {
+            while (true) {
+                peerConnection.getStats(object : RTCStatsCollectorCallback {
+                    override fun onStatsDelivered(statsReport: RTCStatsReport?) {
+                        statsReport?.statsMap?.values?.forEach { report ->
+                            println("Stats Type: ${report.type}")
+                            println("Stats Values: ${report}")
+                            /* if (report.type == "candidate-pair") {
+                                 val rtt = report.values.find { it.name == "currentRoundTripTime" }
+                                 if (rtt != null) {
+                                     val latencyMs = (rtt.value.toDouble() * 1000).toInt()
+                                     println("Current Latency (RTT): $latencyMs ms")
+                                 }
+                             }*/
+                        }
+                    }
+                })
+                delay(1000) // Delay for 1 second before fetching stats again
+            }
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getCellularSignalQuality(context: Context): String {
-        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val allCellInfo = telephonyManager.allCellInfo
 
-        if (allCellInfo.isNotEmpty()) {
-            val cellInfo = allCellInfo.firstOrNull() as? CellInfoLte
-            val signalStrength = cellInfo?.cellSignalStrength?.dbm ?: -120
+    private fun startStatusCollection() {
+        viewModelScope.launch {
+            while (true) {
+                peerConnection.getStats { value ->
+                    value.statsMap.values.forEach { state ->
+                        println("Information of state  ${state.type} and members: ${state.members}")
+                        if (state.type == "candidate-pair") {
+                            val rtt = state.members["currentRoundTripTime"]
+                            if (rtt is String) {
+                                val res = rtt.toDoubleOrNull() ?: 0.0
+                                println("Inside of scope _latencyState: $rtt")
+                                _latencyState.value = res
+                            } else {
+                                println("Out of scope _latencyState: ${rtt}")
+                            }
+                        } else if (state.type == "peer-connection") {
+                            println("Out of scope _latencyState-=-=-==: ${state.members}")
+                            println("Latency from peer-connection state timestamp: ${state.members["timestampUs"]}")
+                            val latency =
+                                state.members["timestampUs"].toString().toDoubleOrNull() ?: 0.0
+                            val convertToMs = (latency * 1000)
+                            println("Latency from peer-connection: $convertToMs ms")
+                        } else {
 
-            return when {
-                signalStrength > -90 -> "Excellent" // Strong signal
-                signalStrength > -110 -> "Good"    // Moderate signal
-                signalStrength > -130 -> "Fair"    // Weak signal
-                else -> "Poor"                     // Very weak signal
+                        }
+                    }
+                }
+                delay(1000)
             }
         }
-        return "Unknown"
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }
