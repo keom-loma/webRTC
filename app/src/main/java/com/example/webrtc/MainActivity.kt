@@ -1,6 +1,7 @@
 package com.example.webrtc
 
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,12 +46,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         val client = StreamVideo.instance()
         val liveStreamViewModel: LiveStreamViewModel by viewModels()
         val call = client.call("livestream", "livestream_0d7c0d31-8525-4e36-ab04-b9157ca1454b")
         setContent {
             WebRTCTheme {
-                val context = LocalContext.current
                 val scope = rememberCoroutineScope()
                 PermissionAwareComponent(
                     modifier = Modifier.fillMaxSize(),
